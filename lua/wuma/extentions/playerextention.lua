@@ -55,8 +55,6 @@ function ENT:CheckLimit(str, id)
 			end
 		end
 
-		id = self:GetPatternLimitID(id) or id -- Pattern has a priority over the individual ID
-
 		local limit = self:GetLimit(id)
 		local limithit = limit:Check()
 		if (limithit ~= nil) then return limithit end
@@ -76,7 +74,6 @@ ENT.old_AddCount = ENT.old_AddCount or ENT.AddCount
 function ENT:AddCount(str, ent, id)
 
 	if (id and self:HasLimit(id)) then
-		id = self:GetPatternLimitID(id) or id -- Pattern has a priority over the individual ID
 
 		self:GetLimit(id):Add(ent, str)
 
@@ -282,9 +279,12 @@ end
 function ENT:GetLimit(str)
 	if not self:GetLimits() then return false end
 	local id = Limit:GenerateID(nil, str)
+	id = self:GetPatternLimitID(id) or id
 	return self:GetLimits()[id]
 end
-
+	
+-- There will be cases where the limit is a prefix, e.g. "weapon_* or vehicle_*"
+-- In these cases we need to check if any of the limits match the prefix
 function ENT:GetPatternLimitID(str)
 	if not self:GetLimits() then return false end
 	for lid, _ in pairs(self:GetLimits()) do
@@ -298,19 +298,12 @@ end
 
 function ENT:HasLimit(str)
 	if not self:GetLimits() then return false end
-	local id = Limit:GenerateID(_, str) 
+	local id = Limit:GenerateID(nil, str)
+	id = self:GetPatternLimitID(id) or id
 	local Limits = self:GetLimits()
-	if self:GetLimits()[id] then return true end
+	if not Limits[id] then return false end
 
-	-- There will be cases where the limit is a prefix, e.g. "weapon_* or vehicle_*"
-	-- In these cases we need to check if any of the limits match the prefix
-	for lid, limit in pairs(Limits) do
-		local pattern = "^" .. string.gsub(lid, "%*", ".*") .. "$"
-		if string.match(id, pattern) then
-			return true
-		end
-	end
-	return false
+	return true
 end
 
 function ENT:SetLimitCache(cache)

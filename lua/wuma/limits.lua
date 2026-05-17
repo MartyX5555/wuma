@@ -300,6 +300,7 @@ function WUMA.ChangeTotalLimits(user_id, string, delta)
 			ply:SetNWInt("Count.TotalLimits." .. string, 0)
 		end
 	else
+		print(user_id, string, value, delta)
 		WUMA.UserLimitStrings[user_id][string] = value + delta
 
 		if ply then

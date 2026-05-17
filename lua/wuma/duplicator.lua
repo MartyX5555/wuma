@@ -26,6 +26,7 @@ end
 
 if AdvDupe2 then
 	hook.Add("AdvDupe_FinishPasting", "WUMAAdvDupeFinishedPasting", function(data)
+		if true then return end -- This seems unnecesary. Also, its broken
 		local user = data[1].Player
 		if user then
 			for _, entity in pairs(data[1].CreatedEntities) do
@@ -49,6 +50,8 @@ if AdvDupe2 then
 						str = entity:GetTable().VehicleName
 					end
 
+					print("Checking limit for", str, "for player", user:Nick())
+
 					if user:HasLimit(str) then
 						if (user:CheckLimit(nil, str) == false) then
 							entity:Remove()
@@ -60,9 +63,8 @@ if AdvDupe2 then
 			end
 		end
 	end)
-
 end
-
+---
 local function checkDuplicatorSpawn(ply, entTable)
 	local class = entTable.Class
 
